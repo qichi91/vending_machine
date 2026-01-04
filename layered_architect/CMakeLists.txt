@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # カバレッジ計測用オプション
-option(ENABLE_COVERAGE "Enable coverage reporting" ON)
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
 if(ENABLE_COVERAGE)
   message(STATUS "Coverage reporting enabled")
     # コンパイラがClangであることを確認

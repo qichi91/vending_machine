@@ -303,7 +303,7 @@ layered_architect/
 └── src/
 
 # ビルド手順
-cd /home/pcqichi/vending_machine/layered_architect
+cd vending_machine/layered_architect
 
 # ビルドディレクトリの作成とビルド
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
@@ -320,7 +320,7 @@ cd build
 ### クリーンビルド
 
 ```bash
-cd /home/pcqichi/vending_machine/layered_architect
+cd vending_machine/layered_architect
 rm -rf build
 cmake -S . -B build
 cmake --build build -j4
