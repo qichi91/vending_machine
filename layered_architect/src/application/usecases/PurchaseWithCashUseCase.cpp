@@ -1,4 +1,5 @@
 #include "PurchaseWithCashUseCase.hpp"
+#include "application/repositories/ITransactionHistoryRepository.hpp"
 #include "domain/interfaces/ICoinMech.hpp"
 #include "domain/interfaces/IDispenser.hpp"
 #include "domain/inventory/Inventory.hpp"
@@ -7,7 +8,6 @@
 #include "domain/sales/SessionId.hpp"
 #include "domain/sales/TransactionRecord.hpp"
 #include "domain/services/PurchaseEligibilityService.hpp"
-#include "infrastructure/repositories/ITransactionHistoryRepository.hpp"
 #include <atomic>
 
 namespace vending_machine {
@@ -19,7 +19,7 @@ static std::atomic<int> session_counter{1};
 PurchaseWithCashUseCase::PurchaseWithCashUseCase(
     domain::Inventory &inventory, domain::Wallet &wallet, domain::Sales &sales,
     domain::ICoinMech &coin_mech, domain::IDispenser &dispenser,
-    infrastructure::ITransactionHistoryRepository &transaction_history)
+    application::ITransactionHistoryRepository &transaction_history)
     : inventory_(inventory), wallet_(wallet), sales_(sales),
       coin_mech_(coin_mech), dispenser_(dispenser),
       transaction_history_(transaction_history) {}

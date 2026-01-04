@@ -13,6 +13,7 @@
 #ifndef VENDING_MACHINE_APPLICATION_VENDING_MACHINE_APPLICATION_HPP
 #define VENDING_MACHINE_APPLICATION_VENDING_MACHINE_APPLICATION_HPP
 
+#include "application/repositories/ITransactionHistoryRepository.hpp"
 #include "application/usecases/CashCollectionUseCase.hpp"
 #include "application/usecases/InventoryRefillUseCase.hpp"
 #include "application/usecases/PurchaseWithCashUseCase.hpp"
@@ -24,7 +25,6 @@
 #include "domain/inventory/Inventory.hpp"
 #include "domain/payment/Wallet.hpp"
 #include "domain/sales/Sales.hpp"
-#include "infrastructure/repositories/ITransactionHistoryRepository.hpp"
 #include <memory>
 
 namespace vending_machine {
@@ -46,10 +46,10 @@ public:
    * @param payment_gateway 決済ゲートウェイ
    * @param transaction_history 取引履歴リポジトリ
    */
-  VendingMachineApplication(
-      domain::ICoinMech &coin_mech, domain::IDispenser &dispenser,
-      domain::IPaymentGateway &payment_gateway,
-      infrastructure::ITransactionHistoryRepository &transaction_history);
+  VendingMachineApplication(domain::ICoinMech &coin_mech,
+                            domain::IDispenser &dispenser,
+                            domain::IPaymentGateway &payment_gateway,
+                            ITransactionHistoryRepository &transaction_history);
 
   /**
    * @brief 初期在庫を設定
@@ -92,7 +92,7 @@ private:
   domain::ICoinMech &coin_mech_;
   domain::IDispenser &dispenser_;
   domain::IPaymentGateway &payment_gateway_;
-  infrastructure::ITransactionHistoryRepository &transaction_history_;
+  ITransactionHistoryRepository &transaction_history_;
 
   // ユースケース
   std::unique_ptr<PurchaseWithCashUseCase> purchase_with_cash_usecase_;

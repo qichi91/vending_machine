@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace vending_machine {
-namespace infrastructure {
+namespace application {
 class ITransactionHistoryRepository;
 }
 namespace domain {
@@ -52,7 +52,7 @@ public:
       domain::Inventory &inventory, domain::Wallet &wallet,
       domain::Sales &sales, domain::ICoinMech &coin_mech,
       domain::IDispenser &dispenser,
-      infrastructure::ITransactionHistoryRepository &transaction_history);
+      application::ITransactionHistoryRepository &transaction_history);
 
   /**
    * @brief セッションを開始
@@ -95,7 +95,7 @@ private:
   domain::Sales &sales_;
   domain::ICoinMech &coin_mech_;
   domain::IDispenser &dispenser_;
-  infrastructure::ITransactionHistoryRepository &transaction_history_;
+  ITransactionHistoryRepository &transaction_history_;
 };
 
 } // namespace application

@@ -1,7 +1,7 @@
 #ifndef VENDING_MACHINE_INFRASTRUCTURE_REPOSITORIES_INMEMORY_INMEMORY_TRANSACTION_HISTORY_HPP
 #define VENDING_MACHINE_INFRASTRUCTURE_REPOSITORIES_INMEMORY_INMEMORY_TRANSACTION_HISTORY_HPP
 
-#include "infrastructure/repositories/ITransactionHistoryRepository.hpp"
+#include "application/repositories/ITransactionHistoryRepository.hpp"
 #include <algorithm>
 #include <vector>
 
@@ -16,7 +16,7 @@ namespace infrastructure {
  * アプリケーション実行中のみ有効です。
  */
 class InMemoryTransactionHistoryRepository
-    : public ITransactionHistoryRepository {
+    : public application::ITransactionHistoryRepository {
 public:
   /**
    * @brief コンストラクタ

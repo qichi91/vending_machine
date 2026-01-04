@@ -13,8 +13,8 @@
 #ifndef VENDING_MACHINE_APPLICATION_USECASES_CASH_COLLECTION_USECASE_HPP
 #define VENDING_MACHINE_APPLICATION_USECASES_CASH_COLLECTION_USECASE_HPP
 
+#include "application/repositories/ITransactionHistoryRepository.hpp"
 #include "domain/common/Money.hpp"
-#include "infrastructure/repositories/ITransactionHistoryRepository.hpp"
 
 namespace vending_machine {
 namespace application {
@@ -32,7 +32,7 @@ public:
    * @param transaction_history 取引履歴リポジトリ
    */
   explicit CashCollectionUseCase(
-      infrastructure::ITransactionHistoryRepository &transaction_history);
+      ITransactionHistoryRepository &transaction_history);
 
   /**
    * @brief 売上金の合計を取得
@@ -47,7 +47,7 @@ public:
   domain::Money collectCash();
 
 private:
-  infrastructure::ITransactionHistoryRepository &transaction_history_;
+  ITransactionHistoryRepository &transaction_history_;
 };
 
 } // namespace application

@@ -1,4 +1,5 @@
 #include "../../../src/application/usecases/PurchaseWithEMoneyUseCase.hpp"
+#include "../../../src/application/repositories/ITransactionHistoryRepository.hpp"
 #include "../../../src/domain/common/Money.hpp"
 #include "../../../src/domain/common/Price.hpp"
 #include "../../../src/domain/common/Quantity.hpp"
@@ -10,7 +11,6 @@
 #include "../../../src/domain/inventory/ProductSlot.hpp"
 #include "../../../src/domain/payment/Wallet.hpp"
 #include "../../../src/domain/sales/Sales.hpp"
-#include "../../../src/infrastructure/repositories/ITransactionHistoryRepository.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -31,7 +31,7 @@ public:
 };
 
 class MockTransactionHistoryRepository
-    : public infrastructure::ITransactionHistoryRepository {
+    : public application::ITransactionHistoryRepository {
 public:
   MOCK_METHOD(void, save, (const domain::TransactionRecord &record),
               (override));

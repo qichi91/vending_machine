@@ -1,17 +1,18 @@
-#ifndef VENDING_MACHINE_INFRASTRUCTURE_REPOSITORIES_ITRANSACTIONHISTORY_HPP
-#define VENDING_MACHINE_INFRASTRUCTURE_REPOSITORIES_ITRANSACTIONHISTORY_HPP
+#ifndef VENDING_MACHINE_APPLICATION_REPOSITORIES_ITRANSACTIONHISTORY_HPP
+#define VENDING_MACHINE_APPLICATION_REPOSITORIES_ITRANSACTIONHISTORY_HPP
 
 #include "domain/sales/TransactionRecord.hpp"
 #include <vector>
 
 namespace vending_machine {
-namespace infrastructure {
+namespace application {
 
 /**
  * @interface ITransactionHistoryRepository
  * @brief トランザクション履歴の永続化インターフェース
  *
- * 実行されたトランザクションをリポジトリに保存・取得します。
+ * Application層が必要とするリポジトリインターフェース。
+ * Infrastructure層がこのインターフェースを実装します。
  */
 class ITransactionHistoryRepository {
 public:
@@ -49,7 +50,7 @@ public:
   virtual void clear() = 0;
 };
 
-} // namespace infrastructure
+} // namespace application
 } // namespace vending_machine
 
-#endif // VENDING_MACHINE_INFRASTRUCTURE_REPOSITORIES_ITRANSACTIONHISTORY_HPP
+#endif // VENDING_MACHINE_APPLICATION_REPOSITORIES_ITRANSACTIONHISTORY_HPP

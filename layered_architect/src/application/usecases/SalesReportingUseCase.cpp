@@ -5,7 +5,7 @@ namespace vending_machine {
 namespace application {
 
 SalesReportingUseCase::SalesReportingUseCase(
-    infrastructure::ITransactionHistoryRepository &transaction_history)
+    application::ITransactionHistoryRepository &transaction_history)
     : transaction_history_(transaction_history) {}
 
 std::vector<SlotSalesReport>

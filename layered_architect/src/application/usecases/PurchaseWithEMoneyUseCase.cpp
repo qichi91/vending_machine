@@ -1,4 +1,5 @@
 #include "PurchaseWithEMoneyUseCase.hpp"
+#include "application/repositories/ITransactionHistoryRepository.hpp"
 #include "domain/interfaces/IDispenser.hpp"
 #include "domain/interfaces/IPaymentGateway.hpp"
 #include "domain/inventory/Inventory.hpp"
@@ -6,7 +7,6 @@
 #include "domain/sales/Sales.hpp"
 #include "domain/sales/SessionId.hpp"
 #include "domain/sales/TransactionRecord.hpp"
-#include "infrastructure/repositories/ITransactionHistoryRepository.hpp"
 #include <atomic>
 
 namespace vending_machine {
@@ -18,7 +18,7 @@ static std::atomic<int> emoney_session_counter{1000};
 PurchaseWithEMoneyUseCase::PurchaseWithEMoneyUseCase(
     domain::Inventory &inventory, domain::Wallet &wallet, domain::Sales &sales,
     domain::IPaymentGateway &payment_gateway, domain::IDispenser &dispenser,
-    infrastructure::ITransactionHistoryRepository &transaction_history)
+    application::ITransactionHistoryRepository &transaction_history)
     : inventory_(inventory), wallet_(wallet), sales_(sales),
       payment_gateway_(payment_gateway), dispenser_(dispenser),
       transaction_history_(transaction_history), pending_price_(std::nullopt) {}
