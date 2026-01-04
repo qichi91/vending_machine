@@ -1,16 +1,16 @@
-#include "../../../src/application/usecases/PurchaseWithEMoneyUseCase.hpp"
-#include "../../../src/application/repositories/ITransactionHistoryRepository.hpp"
-#include "../../../src/domain/common/Money.hpp"
-#include "../../../src/domain/common/Price.hpp"
-#include "../../../src/domain/common/Quantity.hpp"
-#include "../../../src/domain/interfaces/IDispenser.hpp"
-#include "../../../src/domain/interfaces/IPaymentGateway.hpp"
-#include "../../../src/domain/inventory/Inventory.hpp"
-#include "../../../src/domain/inventory/ProductInfo.hpp"
-#include "../../../src/domain/inventory/ProductName.hpp"
-#include "../../../src/domain/inventory/ProductSlot.hpp"
-#include "../../../src/domain/payment/Wallet.hpp"
-#include "../../../src/domain/sales/Sales.hpp"
+#include "src/application/usecases/PurchaseWithEMoneyUseCase.hpp"
+#include "src/domain/common/Money.hpp"
+#include "src/domain/common/Price.hpp"
+#include "src/domain/common/Quantity.hpp"
+#include "src/domain/inventory/Inventory.hpp"
+#include "src/domain/inventory/ProductInfo.hpp"
+#include "src/domain/inventory/ProductName.hpp"
+#include "src/domain/inventory/ProductSlot.hpp"
+#include "src/domain/payment/Wallet.hpp"
+#include "src/domain/sales/Sales.hpp"
+#include "src/infrastructure/interfaces/IDispenser.hpp"
+#include "src/infrastructure/interfaces/IPaymentGateway.hpp"
+#include "src/infrastructure/interfaces/ITransactionHistoryRepository.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -18,20 +18,23 @@ namespace vending_machine {
 namespace application {
 
 // Mockクラス
-class MockPaymentGateway : public domain::IPaymentGateway {
+class MockPaymentGateway : public infrastructure::IPaymentGateway {
 public:
   MOCK_METHOD(void, requestPayment, (const domain::Price &amount), (override));
   MOCK_METHOD(void, cancelPayment, (), (override));
-  MOCK_METHOD(domain::PaymentStatus, getPaymentStatus, (), (const override));
+  MOCK_METHOD(infrastructure::PaymentStatus, getPaymentStatus, (),
+              (const override));
 };
 
-class MockDispenser : public domain::IDispenser {
+class MockDispenser : public infrastructure::IDispenser {
 public:
-  MOCK_METHOD(void, dispense, (const domain::SlotId &slot_id), (override));
+  MOCK_METHOD(void, dispense, (const domain::ProductInfo &product), (override));
+  MOCK_METHOD(bool, canDispense, (const domain::ProductInfo &product),
+              (const override));
 };
 
 class MockTransactionHistoryRepository
-    : public application::ITransactionHistoryRepository {
+    : public infrastructure::ITransactionHistoryRepository {
 public:
   MOCK_METHOD(void, save, (const domain::TransactionRecord &record),
               (override));
@@ -121,8 +124,8 @@ TEST_F(PurchaseWithEMoneyUseCaseTest, SuccessfulPurchaseWithAuthorizedPayment) {
   EXPECT_CALL(mock_payment_gateway, requestPayment(domain::Price(120)))
       .Times(1);
   EXPECT_CALL(mock_payment_gateway, getPaymentStatus())
-      .WillOnce(::testing::Return(domain::PaymentStatus::AUTHORIZED));
-  EXPECT_CALL(mock_dispenser, dispense(domain::SlotId(1))).Times(1);
+      .WillOnce(::testing::Return(infrastructure::PaymentStatus::Authorized));
+  EXPECT_CALL(mock_dispenser, dispense(testing::_)).Times(1);
 
   bool result = use_case->selectAndRequestPayment(domain::SlotId(1));
 
@@ -140,7 +143,7 @@ TEST_F(PurchaseWithEMoneyUseCaseTest, FailedPurchaseWithFailedPayment) {
   EXPECT_CALL(mock_payment_gateway, requestPayment(domain::Price(120)))
       .Times(1);
   EXPECT_CALL(mock_payment_gateway, getPaymentStatus())
-      .WillOnce(::testing::Return(domain::PaymentStatus::FAILED));
+      .WillOnce(::testing::Return(infrastructure::PaymentStatus::Failed));
   // ディスペンサーは呼ばれない
   EXPECT_CALL(mock_dispenser, dispense).Times(0);
 
@@ -158,7 +161,7 @@ TEST_F(PurchaseWithEMoneyUseCaseTest, CancelledPurchase) {
   EXPECT_CALL(mock_payment_gateway, requestPayment(domain::Price(120)))
       .Times(1);
   EXPECT_CALL(mock_payment_gateway, getPaymentStatus())
-      .WillOnce(::testing::Return(domain::PaymentStatus::CANCELLED));
+      .WillOnce(::testing::Return(infrastructure::PaymentStatus::Cancelled));
   EXPECT_CALL(mock_dispenser, dispense).Times(0);
 
   bool result = use_case->selectAndRequestPayment(domain::SlotId(1));
@@ -193,8 +196,8 @@ TEST_F(PurchaseWithEMoneyUseCaseTest, CanPurchaseMultipleProducts) {
   EXPECT_CALL(mock_payment_gateway, requestPayment(domain::Price(120)))
       .Times(1);
   EXPECT_CALL(mock_payment_gateway, getPaymentStatus())
-      .WillOnce(::testing::Return(domain::PaymentStatus::AUTHORIZED));
-  EXPECT_CALL(mock_dispenser, dispense(domain::SlotId(1))).Times(1);
+      .WillOnce(::testing::Return(infrastructure::PaymentStatus::Authorized));
+  EXPECT_CALL(mock_dispenser, dispense(testing::_)).Times(1);
 
   bool result1 = use_case->selectAndRequestPayment(domain::SlotId(1));
   EXPECT_TRUE(result1);
@@ -204,8 +207,8 @@ TEST_F(PurchaseWithEMoneyUseCaseTest, CanPurchaseMultipleProducts) {
   EXPECT_CALL(mock_payment_gateway, requestPayment(domain::Price(150)))
       .Times(1);
   EXPECT_CALL(mock_payment_gateway, getPaymentStatus())
-      .WillOnce(::testing::Return(domain::PaymentStatus::AUTHORIZED));
-  EXPECT_CALL(mock_dispenser, dispense(domain::SlotId(2))).Times(1);
+      .WillOnce(::testing::Return(infrastructure::PaymentStatus::Authorized));
+  EXPECT_CALL(mock_dispenser, dispense(testing::_)).Times(1);
 
   bool result2 = use_case->selectAndRequestPayment(domain::SlotId(2));
   EXPECT_TRUE(result2);
@@ -222,7 +225,7 @@ TEST_F(PurchaseWithEMoneyUseCaseTest, HandlesPendingPaymentStatus) {
   EXPECT_CALL(mock_payment_gateway, requestPayment(domain::Price(120)))
       .Times(1);
   EXPECT_CALL(mock_payment_gateway, getPaymentStatus())
-      .WillOnce(::testing::Return(domain::PaymentStatus::PENDING));
+      .WillOnce(::testing::Return(infrastructure::PaymentStatus::Pending));
   EXPECT_CALL(mock_dispenser, dispense).Times(0);
 
   bool result = use_case->selectAndRequestPayment(domain::SlotId(1));
@@ -248,8 +251,8 @@ TEST_F(PurchaseWithEMoneyUseCaseTest,
   EXPECT_CALL(mock_payment_gateway, requestPayment(domain::Price(150)))
       .Times(1);
   EXPECT_CALL(mock_payment_gateway, getPaymentStatus())
-      .WillOnce(::testing::Return(domain::PaymentStatus::AUTHORIZED));
-  EXPECT_CALL(mock_dispenser, dispense(domain::SlotId(2))).Times(1);
+      .WillOnce(::testing::Return(infrastructure::PaymentStatus::Authorized));
+  EXPECT_CALL(mock_dispenser, dispense(testing::_)).Times(1);
 
   bool result = use_case->selectAndRequestPayment(domain::SlotId(2));
   EXPECT_TRUE(result);

@@ -8,7 +8,7 @@
  * - 操作テスト: 増加、減少
  */
 
-#include "domain/common/Quantity.hpp"
+#include "src/domain/common/Quantity.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
 

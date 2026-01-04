@@ -1,7 +1,7 @@
 #include "PurchaseEligibilityService.hpp"
-#include "domain/interfaces/ICoinMech.hpp"
 #include "domain/inventory/Inventory.hpp"
 #include "domain/payment/Wallet.hpp"
+#include "infrastructure/interfaces/ICoinMech.hpp"
 #include <algorithm>
 
 namespace vending_machine {
@@ -10,7 +10,7 @@ namespace domain {
 std::vector<EligibleProduct>
 PurchaseEligibilityService::calculateEligibleProducts(
     const Inventory &inventory, const Wallet &wallet,
-    const ICoinMech &coin_mech) {
+    const infrastructure::ICoinMech &coin_mech) {
   std::vector<EligibleProduct> eligible;
 
   // ドメインサービスは複数の集約を横断して処理を行うため、

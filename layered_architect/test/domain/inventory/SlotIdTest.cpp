@@ -7,7 +7,7 @@
  * - 境界値分析: 0（無効）、1（最小）、最大スロット数
  */
 
-#include "domain/inventory/SlotId.hpp"
+#include "src/domain/inventory/SlotId.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
 

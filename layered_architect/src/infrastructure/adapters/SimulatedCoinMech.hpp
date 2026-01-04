@@ -6,13 +6,13 @@
 #ifndef VENDING_MACHINE_INFRASTRUCTURE_SIMULATED_COIN_MECH_HPP
 #define VENDING_MACHINE_INFRASTRUCTURE_SIMULATED_COIN_MECH_HPP
 
-#include "domain/interfaces/ICoinMech.hpp"
+#include "infrastructure/interfaces/ICoinMech.hpp"
 #include <iostream>
 
 namespace vending_machine {
 namespace infrastructure {
 
-class SimulatedCoinMech : public domain::ICoinMech {
+class SimulatedCoinMech : public ICoinMech {
 public:
   bool canMakeChange(const domain::Money &amount) const override {
     return true; // 常に釣り銭可能

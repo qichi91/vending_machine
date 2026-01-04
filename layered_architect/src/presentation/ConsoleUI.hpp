@@ -13,7 +13,6 @@
 #define VENDING_MACHINE_PRESENTATION_CONSOLEUI_HPP
 
 #include "application/VendingMachineApplication.hpp"
-#include <memory>
 
 namespace vending_machine {
 namespace presentation {

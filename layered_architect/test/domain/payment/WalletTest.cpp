@@ -9,8 +9,8 @@
  * - 返金（お釣り）
  */
 
-#include "domain/payment/Wallet.hpp"
-#include "domain/common/Money.hpp"
+#include "src/domain/payment/Wallet.hpp"
+#include "src/domain/common/Money.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
 

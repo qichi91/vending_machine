@@ -1,7 +1,7 @@
-#include "domain/sales/Sales.hpp"
-#include "domain/inventory/SlotId.hpp"
-#include "domain/sales/SalesId.hpp"
-#include "domain/sales/SessionId.hpp"
+#include "src/domain/sales/Sales.hpp"
+#include "src/domain/inventory/SlotId.hpp"
+#include "src/domain/sales/SalesId.hpp"
+#include "src/domain/sales/SessionId.hpp"
 #include <gtest/gtest.h>
 
 using namespace vending_machine::domain;

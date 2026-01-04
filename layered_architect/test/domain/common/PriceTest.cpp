@@ -8,8 +8,7 @@
  * - Money型との相互運用性
  */
 
-#include "domain/common/Price.hpp"
-#include "domain/common/Money.hpp"
+#include "src/domain/common/Price.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
 

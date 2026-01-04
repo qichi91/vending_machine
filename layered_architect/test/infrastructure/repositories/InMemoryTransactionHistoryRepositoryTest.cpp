@@ -1,9 +1,9 @@
-#include "infrastructure/repositories/InMemoryTransactionHistoryRepository.hpp"
-#include "domain/common/Money.hpp"
-#include "domain/common/Price.hpp"
-#include "domain/inventory/SlotId.hpp"
-#include "domain/sales/SalesId.hpp"
-#include "domain/sales/TransactionRecord.hpp"
+#include "src/infrastructure/repositories/InMemoryTransactionHistoryRepository.hpp"
+#include "src/domain/common/Money.hpp"
+#include "src/domain/common/Price.hpp"
+#include "src/domain/inventory/SlotId.hpp"
+#include "src/domain/sales/SalesId.hpp"
+#include "src/domain/sales/TransactionRecord.hpp"
 #include <chrono>
 #include <gtest/gtest.h>
 #include <thread>

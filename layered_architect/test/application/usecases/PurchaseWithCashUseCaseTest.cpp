@@ -1,16 +1,16 @@
-#include "../../../src/application/usecases/PurchaseWithCashUseCase.hpp"
-#include "../../../src/application/repositories/ITransactionHistoryRepository.hpp"
-#include "../../../src/domain/common/Money.hpp"
-#include "../../../src/domain/common/Price.hpp"
-#include "../../../src/domain/common/Quantity.hpp"
-#include "../../../src/domain/interfaces/ICoinMech.hpp"
-#include "../../../src/domain/interfaces/IDispenser.hpp"
-#include "../../../src/domain/inventory/Inventory.hpp"
-#include "../../../src/domain/inventory/ProductInfo.hpp"
-#include "../../../src/domain/inventory/ProductName.hpp"
-#include "../../../src/domain/inventory/ProductSlot.hpp"
-#include "../../../src/domain/payment/Wallet.hpp"
-#include "../../../src/domain/sales/Sales.hpp"
+#include "src/application/usecases/PurchaseWithCashUseCase.hpp"
+#include "src/domain/common/Money.hpp"
+#include "src/domain/common/Price.hpp"
+#include "src/domain/common/Quantity.hpp"
+#include "src/domain/inventory/Inventory.hpp"
+#include "src/domain/inventory/ProductInfo.hpp"
+#include "src/domain/inventory/ProductName.hpp"
+#include "src/domain/inventory/ProductSlot.hpp"
+#include "src/domain/payment/Wallet.hpp"
+#include "src/domain/sales/Sales.hpp"
+#include "src/infrastructure/interfaces/ICoinMech.hpp"
+#include "src/infrastructure/interfaces/IDispenser.hpp"
+#include "src/infrastructure/interfaces/ITransactionHistoryRepository.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -18,20 +18,22 @@ namespace vending_machine {
 namespace application {
 
 // Mockクラス
-class MockCoinMech : public domain::ICoinMech {
+class MockCoinMech : public infrastructure::ICoinMech {
 public:
   MOCK_METHOD(bool, canMakeChange, (const domain::Money &amount),
               (const override));
   MOCK_METHOD(void, dispense, (const domain::Money &amount), (override));
 };
 
-class MockDispenser : public domain::IDispenser {
+class MockDispenser : public infrastructure::IDispenser {
 public:
-  MOCK_METHOD(void, dispense, (const domain::SlotId &slot_id), (override));
+  MOCK_METHOD(bool, canDispense, (const domain::ProductInfo &product),
+              (const override));
+  MOCK_METHOD(void, dispense, (const domain::ProductInfo &product), (override));
 };
 
 class MockTransactionHistoryRepository
-    : public application::ITransactionHistoryRepository {
+    : public infrastructure::ITransactionHistoryRepository {
 public:
   MOCK_METHOD(void, save, (const domain::TransactionRecord &record),
               (override));
@@ -125,7 +127,7 @@ TEST_F(PurchaseWithCashUseCaseTest, CanPurchaseProduct) {
   use_case->insertCash(domain::Money(500));
 
   // ディスペンサーとコインメックの期待値設定
-  EXPECT_CALL(mock_dispenser, dispense(domain::SlotId(1))).Times(1);
+  EXPECT_CALL(mock_dispenser, dispense(testing::_)).Times(1);
   EXPECT_CALL(mock_coin_mech, dispense(domain::Money(380))) // 500 - 120
       .Times(1);
 
@@ -144,7 +146,7 @@ TEST_F(PurchaseWithCashUseCaseTest, PurchaseWithExactAmount) {
   use_case->insertCash(domain::Money(120)); // ちょうど120円
 
   // ディスペンサーは呼ばれる、コインメックは呼ばれない
-  EXPECT_CALL(mock_dispenser, dispense(domain::SlotId(1))).Times(1);
+  EXPECT_CALL(mock_dispenser, dispense(testing::_)).Times(1);
   EXPECT_CALL(mock_coin_mech, dispense).Times(0);
 
   use_case->selectAndPurchase(domain::SlotId(1));

@@ -1,12 +1,12 @@
 #include "PurchaseWithEMoneyUseCase.hpp"
-#include "application/repositories/ITransactionHistoryRepository.hpp"
-#include "domain/interfaces/IDispenser.hpp"
-#include "domain/interfaces/IPaymentGateway.hpp"
 #include "domain/inventory/Inventory.hpp"
 #include "domain/payment/Wallet.hpp"
 #include "domain/sales/Sales.hpp"
 #include "domain/sales/SessionId.hpp"
 #include "domain/sales/TransactionRecord.hpp"
+#include "infrastructure/interfaces/IDispenser.hpp"
+#include "infrastructure/interfaces/IPaymentGateway.hpp"
+#include "infrastructure/interfaces/ITransactionHistoryRepository.hpp"
 #include <atomic>
 
 namespace vending_machine {
@@ -17,8 +17,9 @@ static std::atomic<int> emoney_session_counter{1000};
 
 PurchaseWithEMoneyUseCase::PurchaseWithEMoneyUseCase(
     domain::Inventory &inventory, domain::Wallet &wallet, domain::Sales &sales,
-    domain::IPaymentGateway &payment_gateway, domain::IDispenser &dispenser,
-    application::ITransactionHistoryRepository &transaction_history)
+    infrastructure::IPaymentGateway &payment_gateway,
+    infrastructure::IDispenser &dispenser,
+    infrastructure::ITransactionHistoryRepository &transaction_history)
     : inventory_(inventory), wallet_(wallet), sales_(sales),
       payment_gateway_(payment_gateway), dispenser_(dispenser),
       transaction_history_(transaction_history), pending_price_(std::nullopt) {}
@@ -68,57 +69,71 @@ bool PurchaseWithEMoneyUseCase::selectAndRequestPayment(
   // 3. 決済待ち状態に遷移
   sales_.markPaymentPending();
 
-  // 4. 外部決済ゲートウェイに決済要求
-  payment_gateway_.requestPayment(price);
+  // 4. 在庫減算（イベントストーミング Step 5）
+  inventory_.dispense(slot_id);
 
-  // 5. 決済ステータス確認
-  auto payment_status = payment_gateway_.getPaymentStatus();
+  try {
+    // 5. 外部決済ゲートウェイに決済要求（イベントストーミング Step 7準備）
+    payment_gateway_.requestPayment(price);
 
-  if (payment_status == domain::PaymentStatus::AUTHORIZED) {
-    // 決済成功 - Walletに電子マネー承認額を記録
-    domain::Money payment_amount(price.getRawValue());
-    wallet_.authorizeEMoney(payment_amount);
-    pending_price_ = price;
+    // 6. 決済ステータス確認
+    auto payment_status = payment_gateway_.getPaymentStatus();
 
-    // 6. 在庫減算
-    inventory_.dispense(slot_id);
+    if (payment_status == infrastructure::PaymentStatus::Authorized) {
+      // 決済成功時のみ以下を実行
 
-    // 7. 決済確定（Walletから引き落とし）
-    wallet_.withdraw(payment_amount);
+      // 6. 排出中状態に遷移（イベントストーミング Step 6準備）
+      sales_.markDispensing();
 
-    // 8. 排出中状態に遷移
-    sales_.markDispensing();
+      // 7. 商品排出（イベントストーミング Step 6）
+      const auto &product_info = inventory_.getSlot(slot_id).getProductInfo();
+      dispenser_.dispense(product_info);
 
-    // 9. 商品排出
-    dispenser_.dispense(slot_id);
+      // 8. 決済確定（イベントストーミング Step 7）
+      // Walletに電子マネー承認額を記録
+      domain::Money payment_amount(price.getRawValue());
+      wallet_.authorizeEMoney(payment_amount);
+      pending_price_ = price;
 
-    // 10. トランザクション完了
-    sales_.completeTransaction();
+      // 決済確定（Walletから引き落とし）
+      wallet_.withdraw(payment_amount);
 
-    // 11. トランザクション履歴を記録
-    auto sales_id = sales_.getCurrentSessionSalesId();
-    if (sales_id.has_value()) {
-      domain::TransactionRecord record(sales_id.value(), slot_id, price,
-                                       domain::PaymentMethodType::EMONEY);
-      transaction_history_.save(record);
+      // 9. トランザクション完了
+      sales_.completeTransaction();
+
+      // 10. トランザクション履歴を記録
+      auto sales_id = sales_.getCurrentSessionSalesId();
+      if (sales_id.has_value()) {
+        domain::TransactionRecord record(sales_id.value(), slot_id, price,
+                                         domain::PaymentMethodType::EMONEY);
+        transaction_history_.save(record);
+      }
+
+      pending_price_ = std::nullopt;
+      return true;
+
+    } else if (payment_status == infrastructure::PaymentStatus::Failed ||
+               payment_status == infrastructure::PaymentStatus::Cancelled) {
+      // 決済失敗 - 在庫ロールバックとセッションキャンセル
+      inventory_.refill(slot_id, domain::Quantity(1));
+      sales_.cancelTransaction();
+      pending_price_ = std::nullopt;
+      return false;
+
+    } else {
+      // PENDING状態（実装では即座に結果が返る想定）
+      // 実運用では非同期処理が必要
+      inventory_.refill(slot_id, domain::Quantity(1));
+      sales_.cancelTransaction();
+      pending_price_ = std::nullopt;
+      return false;
     }
-
-    pending_price_ = std::nullopt;
-    return true;
-
-  } else if (payment_status == domain::PaymentStatus::FAILED ||
-             payment_status == domain::PaymentStatus::CANCELLED) {
-    // 決済失敗 - セッションをキャンセル
+  } catch (const std::exception &e) {
+    // 決済確定以降で例外発生 - 在庫ロールバックとセッションキャンセル
+    inventory_.refill(slot_id, domain::Quantity(1));
     sales_.cancelTransaction();
     pending_price_ = std::nullopt;
-    return false;
-
-  } else {
-    // PENDING状態（実装では即座に結果が返る想定）
-    // 実運用では非同期処理が必要
-    sales_.cancelTransaction();
-    pending_price_ = std::nullopt;
-    return false;
+    throw;
   }
 }
 

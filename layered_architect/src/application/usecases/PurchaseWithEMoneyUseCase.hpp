@@ -10,15 +10,15 @@
 #include <vector>
 
 namespace vending_machine {
-namespace application {
+namespace infrastructure {
+class IPaymentGateway;
+class IDispenser;
 class ITransactionHistoryRepository;
-}
+} // namespace infrastructure
 namespace domain {
 class Inventory;
 class Wallet;
 class Sales;
-class IPaymentGateway;
-class IDispenser;
 } // namespace domain
 
 namespace application {
@@ -56,9 +56,9 @@ public:
    */
   PurchaseWithEMoneyUseCase(
       domain::Inventory &inventory, domain::Wallet &wallet,
-      domain::Sales &sales, domain::IPaymentGateway &payment_gateway,
-      domain::IDispenser &dispenser,
-      application::ITransactionHistoryRepository &transaction_history);
+      domain::Sales &sales, infrastructure::IPaymentGateway &payment_gateway,
+      infrastructure::IDispenser &dispenser,
+      infrastructure::ITransactionHistoryRepository &transaction_history);
 
   /**
    * @brief セッションを開始
@@ -90,9 +90,9 @@ private:
   domain::Inventory &inventory_;
   domain::Wallet &wallet_;
   domain::Sales &sales_;
-  domain::IPaymentGateway &payment_gateway_;
-  domain::IDispenser &dispenser_;
-  ITransactionHistoryRepository &transaction_history_;
+  infrastructure::IPaymentGateway &payment_gateway_;
+  infrastructure::IDispenser &dispenser_;
+  infrastructure::ITransactionHistoryRepository &transaction_history_;
 
   std::optional<domain::Price> pending_price_; ///< 決済待ち価格
 };

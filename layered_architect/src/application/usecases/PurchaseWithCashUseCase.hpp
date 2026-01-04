@@ -8,15 +8,15 @@
 #include <vector>
 
 namespace vending_machine {
-namespace application {
+namespace infrastructure {
+class ICoinMech;
+class IDispenser;
 class ITransactionHistoryRepository;
-}
+} // namespace infrastructure
 namespace domain {
 class Inventory;
 class Wallet;
 class Sales;
-class ICoinMech;
-class IDispenser;
 } // namespace domain
 
 namespace application {
@@ -50,9 +50,9 @@ public:
    */
   PurchaseWithCashUseCase(
       domain::Inventory &inventory, domain::Wallet &wallet,
-      domain::Sales &sales, domain::ICoinMech &coin_mech,
-      domain::IDispenser &dispenser,
-      application::ITransactionHistoryRepository &transaction_history);
+      domain::Sales &sales, infrastructure::ICoinMech &coin_mech,
+      infrastructure::IDispenser &dispenser,
+      infrastructure::ITransactionHistoryRepository &transaction_history);
 
   /**
    * @brief セッションを開始
@@ -93,9 +93,9 @@ private:
   domain::Inventory &inventory_;
   domain::Wallet &wallet_;
   domain::Sales &sales_;
-  domain::ICoinMech &coin_mech_;
-  domain::IDispenser &dispenser_;
-  ITransactionHistoryRepository &transaction_history_;
+  infrastructure::ICoinMech &coin_mech_;
+  infrastructure::IDispenser &dispenser_;
+  infrastructure::ITransactionHistoryRepository &transaction_history_;
 };
 
 } // namespace application

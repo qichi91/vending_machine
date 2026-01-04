@@ -1,4 +1,4 @@
-#include "domain/sales/SessionId.hpp"
+#include "src/domain/sales/SessionId.hpp"
 #include <gtest/gtest.h>
 
 using namespace vending_machine::domain;

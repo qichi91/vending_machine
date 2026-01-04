@@ -7,9 +7,9 @@
  * - 名前と価格の完全性
  */
 
-#include "domain/inventory/ProductInfo.hpp"
-#include "domain/common/Price.hpp"
-#include "domain/inventory/ProductName.hpp"
+#include "src/domain/inventory/ProductInfo.hpp"
+#include "src/domain/common/Price.hpp"
+#include "src/domain/inventory/ProductName.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
 

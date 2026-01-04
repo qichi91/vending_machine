@@ -8,7 +8,7 @@
  * - 演算テスト: 加算、減算、比較
  */
 
-#include "domain/common/Money.hpp"
+#include "src/domain/common/Money.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
 

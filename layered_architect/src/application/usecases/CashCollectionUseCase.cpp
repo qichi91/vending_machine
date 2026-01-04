@@ -4,7 +4,7 @@ namespace vending_machine {
 namespace application {
 
 CashCollectionUseCase::CashCollectionUseCase(
-    application::ITransactionHistoryRepository &transaction_history)
+    infrastructure::ITransactionHistoryRepository &transaction_history)
     : transaction_history_(transaction_history) {}
 
 domain::Money CashCollectionUseCase::getTotalRevenue() const {

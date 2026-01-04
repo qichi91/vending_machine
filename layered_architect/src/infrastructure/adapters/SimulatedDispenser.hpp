@@ -6,16 +6,22 @@
 #ifndef VENDING_MACHINE_INFRASTRUCTURE_SIMULATED_DISPENSER_HPP
 #define VENDING_MACHINE_INFRASTRUCTURE_SIMULATED_DISPENSER_HPP
 
-#include "domain/interfaces/IDispenser.hpp"
+#include "domain/inventory/ProductInfo.hpp"
+#include "infrastructure/interfaces/IDispenser.hpp"
 #include <iostream>
 
 namespace vending_machine {
 namespace infrastructure {
 
-class SimulatedDispenser : public domain::IDispenser {
+class SimulatedDispenser : public IDispenser {
 public:
-  void dispense(const domain::SlotId &slot_id) override {
-    std::cout << "(スロット " << slot_id.getValue() << " から商品を排出)\n";
+  bool canDispense(const domain::ProductInfo &product) const override {
+    return true; // 常に排出可能
+  }
+
+  void dispense(const domain::ProductInfo &product) override {
+    std::cout << "(スロットから " << product.getName().getValue()
+              << " を排出)\n";
   }
 };
 

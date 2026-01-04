@@ -5,9 +5,9 @@ namespace vending_machine {
 namespace application {
 
 VendingMachineApplication::VendingMachineApplication(
-    domain::ICoinMech &coin_mech, domain::IDispenser &dispenser,
-    domain::IPaymentGateway &payment_gateway,
-    application::ITransactionHistoryRepository &transaction_history)
+    infrastructure::ICoinMech &coin_mech, infrastructure::IDispenser &dispenser,
+    infrastructure::IPaymentGateway &payment_gateway,
+    infrastructure::ITransactionHistoryRepository &transaction_history)
     : sales_(domain::SalesId(1)), coin_mech_(coin_mech), dispenser_(dispenser),
       payment_gateway_(payment_gateway),
       transaction_history_(transaction_history) {

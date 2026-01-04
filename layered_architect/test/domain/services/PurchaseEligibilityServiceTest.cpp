@@ -1,12 +1,12 @@
-#include "../../../src/domain/services/PurchaseEligibilityService.hpp"
-#include "../../../src/domain/common/Money.hpp"
-#include "../../../src/domain/common/Price.hpp"
-#include "../../../src/domain/interfaces/ICoinMech.hpp"
-#include "../../../src/domain/inventory/Inventory.hpp"
-#include "../../../src/domain/inventory/ProductInfo.hpp"
-#include "../../../src/domain/inventory/ProductName.hpp"
-#include "../../../src/domain/inventory/ProductSlot.hpp"
-#include "../../../src/domain/payment/Wallet.hpp"
+#include "src/domain/services/PurchaseEligibilityService.hpp"
+#include "src/domain/common/Money.hpp"
+#include "src/domain/common/Price.hpp"
+#include "src/domain/inventory/Inventory.hpp"
+#include "src/domain/inventory/ProductInfo.hpp"
+#include "src/domain/inventory/ProductName.hpp"
+#include "src/domain/inventory/ProductSlot.hpp"
+#include "src/domain/payment/Wallet.hpp"
+#include "src/infrastructure/interfaces/ICoinMech.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -14,7 +14,7 @@ namespace vending_machine {
 namespace domain {
 
 // ICoinMechのモック実装
-class MockCoinMech : public ICoinMech {
+class MockCoinMech : public vending_machine::infrastructure::ICoinMech {
 public:
   MOCK_METHOD(bool, canMakeChange, (const Money &amount), (const override));
   MOCK_METHOD(void, dispense, (const Money &amount), (override));

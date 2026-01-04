@@ -1,7 +1,7 @@
-#include "application/usecases/SalesReportingUseCase.hpp"
-#include "domain/common/Money.hpp"
-#include "domain/sales/TransactionRecord.hpp"
-#include "infrastructure/repositories/InMemoryTransactionHistoryRepository.hpp"
+#include "src/application/usecases/SalesReportingUseCase.hpp"
+#include "src/domain/common/Money.hpp"
+#include "src/domain/sales/TransactionRecord.hpp"
+#include "src/infrastructure/repositories/InMemoryTransactionHistoryRepository.hpp"
 #include <gtest/gtest.h>
 
 namespace vending_machine {

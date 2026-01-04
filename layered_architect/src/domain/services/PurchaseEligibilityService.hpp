@@ -2,6 +2,7 @@
 #define VENDING_MACHINE_DOMAIN_SERVICES_PURCHASEELIGIBILITYSERVICE_HPP
 
 #include "domain/inventory/EligibleProduct.hpp"
+#include "infrastructure/interfaces/ICoinMech.hpp"
 #include <memory>
 #include <vector>
 
@@ -10,7 +11,12 @@ namespace domain {
 
 class Inventory;
 class Wallet;
+} // namespace domain
+namespace infrastructure {
 class ICoinMech;
+}
+
+namespace domain {
 
 /**
  * @class PurchaseEligibilityService
@@ -36,7 +42,7 @@ public:
    */
   static std::vector<EligibleProduct>
   calculateEligibleProducts(const Inventory &inventory, const Wallet &wallet,
-                            const ICoinMech &coin_mech);
+                            const infrastructure::ICoinMech &coin_mech);
 };
 
 } // namespace domain

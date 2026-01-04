@@ -8,11 +8,11 @@
  * - スロット情報の取得
  */
 
-#include "domain/inventory/ProductSlot.hpp"
-#include "domain/common/Price.hpp"
-#include "domain/common/Quantity.hpp"
-#include "domain/inventory/ProductInfo.hpp"
-#include "domain/inventory/ProductName.hpp"
+#include "src/domain/inventory/ProductSlot.hpp"
+#include "src/domain/common/Price.hpp"
+#include "src/domain/common/Quantity.hpp"
+#include "src/domain/inventory/ProductInfo.hpp"
+#include "src/domain/inventory/ProductName.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
 

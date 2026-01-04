@@ -13,10 +13,10 @@
 #ifndef VENDING_MACHINE_APPLICATION_USECASES_SALES_REPORTING_USECASE_HPP
 #define VENDING_MACHINE_APPLICATION_USECASES_SALES_REPORTING_USECASE_HPP
 
-#include "application/repositories/ITransactionHistoryRepository.hpp"
 #include "domain/common/Money.hpp"
 #include "domain/inventory/SlotId.hpp"
 #include "domain/sales/TransactionRecord.hpp"
+#include "infrastructure/interfaces/ITransactionHistoryRepository.hpp"
 #include <map>
 #include <vector>
 
@@ -65,7 +65,7 @@ public:
    * @param transaction_history 取引履歴リポジトリ
    */
   explicit SalesReportingUseCase(
-      ITransactionHistoryRepository &transaction_history);
+      infrastructure::ITransactionHistoryRepository &transaction_history);
 
   /**
    * @brief スロット別売上レポートを生成
@@ -93,7 +93,7 @@ public:
   int getTotalTransactionCount() const;
 
 private:
-  ITransactionHistoryRepository &transaction_history_;
+  infrastructure::ITransactionHistoryRepository &transaction_history_;
 };
 
 } // namespace application

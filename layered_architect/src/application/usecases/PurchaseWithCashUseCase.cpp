@@ -1,13 +1,13 @@
 #include "PurchaseWithCashUseCase.hpp"
-#include "application/repositories/ITransactionHistoryRepository.hpp"
-#include "domain/interfaces/ICoinMech.hpp"
-#include "domain/interfaces/IDispenser.hpp"
 #include "domain/inventory/Inventory.hpp"
 #include "domain/payment/Wallet.hpp"
 #include "domain/sales/Sales.hpp"
 #include "domain/sales/SessionId.hpp"
 #include "domain/sales/TransactionRecord.hpp"
 #include "domain/services/PurchaseEligibilityService.hpp"
+#include "infrastructure/interfaces/ICoinMech.hpp"
+#include "infrastructure/interfaces/IDispenser.hpp"
+#include "infrastructure/interfaces/ITransactionHistoryRepository.hpp"
 #include <atomic>
 
 namespace vending_machine {
@@ -18,8 +18,8 @@ static std::atomic<int> session_counter{1};
 
 PurchaseWithCashUseCase::PurchaseWithCashUseCase(
     domain::Inventory &inventory, domain::Wallet &wallet, domain::Sales &sales,
-    domain::ICoinMech &coin_mech, domain::IDispenser &dispenser,
-    application::ITransactionHistoryRepository &transaction_history)
+    infrastructure::ICoinMech &coin_mech, infrastructure::IDispenser &dispenser,
+    infrastructure::ITransactionHistoryRepository &transaction_history)
     : inventory_(inventory), wallet_(wallet), sales_(sales),
       coin_mech_(coin_mech), dispenser_(dispenser),
       transaction_history_(transaction_history) {}
@@ -54,36 +54,42 @@ void PurchaseWithCashUseCase::selectAndPurchase(const domain::SlotId &slot_id) {
   // 3. 決済待ち状態に遷移
   sales_.markPaymentPending();
 
-  // 4. 在庫減算
+  // 4. 在庫減算（イベントストーミング Step 5）
   inventory_.dispense(slot_id);
 
-  // 5. 決済確定（Walletから引き落とし）
-  domain::Money payment(price.getRawValue());
-  wallet_.withdraw(payment);
+  try {
+    // 5. 排出中状態に遷移（イベントストーミング Step 6準備）
+    sales_.markDispensing();
 
-  // 6. 排出中状態に遷移
-  sales_.markDispensing();
+    // 6. 商品排出（イベントストーミング Step 6）
+    dispenser_.dispense(product_info);
 
-  // 7. 商品排出
-  dispenser_.dispense(slot_id);
+    // 7. 決済確定（イベントストーミング Step 7）
+    domain::Money payment(price.getRawValue());
+    wallet_.withdraw(payment);
 
-  // 8. お釣り返却（残高がある場合）
-  domain::Money remaining_balance = wallet_.getBalance();
-  if (remaining_balance.getRawValue() > 0) {
-    coin_mech_.dispense(remaining_balance);
-    // 残高をゼロに
-    wallet_.withdraw(remaining_balance);
-  }
+    // 8. お釣り返却（イベントストーミング Step 8）
+    domain::Money remaining_balance = wallet_.getBalance();
+    if (remaining_balance.getRawValue() > 0) {
+      coin_mech_.dispense(remaining_balance);
+      // 残高をゼロに
+      wallet_.withdraw(remaining_balance);
+    }
 
-  // 9. トランザクション完了
-  sales_.completeTransaction();
+    // 9. トランザクション完了
+    sales_.completeTransaction();
 
-  // 10. トランザクション履歴を記録
-  auto sales_id = sales_.getCurrentSessionSalesId();
-  if (sales_id.has_value()) {
-    domain::TransactionRecord record(sales_id.value(), slot_id, price,
-                                     domain::PaymentMethodType::CASH);
-    transaction_history_.save(record);
+    // 10. トランザクション履歴を記録
+    auto sales_id = sales_.getCurrentSessionSalesId();
+    if (sales_id.has_value()) {
+      domain::TransactionRecord record(sales_id.value(), slot_id, price,
+                                       domain::PaymentMethodType::CASH);
+      transaction_history_.save(record);
+    }
+  } catch (...) {
+    // 決済失敗時のロールバック：在庫を戻す
+    inventory_.refill(slot_id, domain::Quantity(1));
+    throw; // 例外を再スロー
   }
 }
 
