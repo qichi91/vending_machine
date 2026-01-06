@@ -867,8 +867,8 @@ ctest --test-dir build/layered --output-on-failure -V
 - **Layered Architecture**: 36 テスト
 - **Clean Architecture**: 33 テスト
 - **Onion Architecture**: 54 テスト
-- **Hexagonal Architecture**: 42 テスト
-- **合計**: 165 テスト以上
+- **Hexagonal Architecture**: 実装中
+- **合計**: 123 テスト以上+
 
 ### テストフィクスチャの例
 
